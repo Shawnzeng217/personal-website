@@ -197,7 +197,7 @@ def generate_post_cards(posts):
     cards = []
     for post in posts:
         cards.append(f'''
-        <a href="/{post['category']}/{post['slug']}.html" class="post-card">
+        <a href="{post['category']}/{post['slug']}/index.html" class="post-card">
             <h3>{post['title']}</h3>
             <p>{post['description']}</p>
             <div class="meta">
