@@ -69,8 +69,25 @@ def markdown_to_html(markdown):
     # Italic
     html = re.sub(r'\*([^*]+)\*', r'<em>\1</em>', html)
 
-    # Links
-    html = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', html)
+    # Links - convert internal links to relative paths
+    def fix_link(match):
+        text = match.group(1)
+        url = match.group(2)
+        # Skip external links
+        if url.startswith('http'):
+            return f'<a href="{url}">{text}</a>'
+        # Convert absolute paths to relative
+        url = re.sub(r'^/', '', url)
+        # Remove .md extension
+        url = re.sub(r'\.md$', '', url)
+        # Add index.html for category roots
+        url = re.sub(r'^(tech|life|projects)$', r'\1/index.html', url)
+        # Add index.html for article links
+        if not url.endswith('.html') and not url.endswith('/'):
+            url = url + '/index.html'
+        return f'<a href="{url}">{text}</a>'
+
+    html = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', fix_link, html)
 
     # Images
     html = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<img src="\2" alt="\1">', html)
@@ -286,7 +303,7 @@ def build():
 
     # Generate individual posts
     for post in posts:
-        print(f"📝 Generating {post['category']}/{post['slug']}.html...")
+        print(f"📝 Generating {post['category']}/{post['slug']}/index.html...")
         post_dir = OUTPUT_DIR / post["category"] / post["slug"]
         post_dir.mkdir(parents=True, exist_ok=True)
 
