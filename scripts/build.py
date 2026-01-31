@@ -13,16 +13,37 @@ from pathlib import Path
 # Config
 SITE_ROOT = Path(__file__).parent.parent
 CONTENT_DIR = SITE_ROOT / "content"
-TEMPLATES_DIR = SITE_ROOT / "templates"
 OUTPUT_DIR = SITE_ROOT
 PUBLIC_DIR = SITE_ROOT / "public"
 
 # Categories
 CATEGORIES = {
-    "tech": {"name": "技术", "icon": "💻"},
-    "life": {"name": "生活", "icon": "🌱"},
-    "projects": {"name": "项目", "icon": "🚀"}
+    "技术": {"name": "技术", "icon": "💻"},
+    "生活": {"name": "生活", "icon": "🌱"},
+    "项目": {"name": "项目", "icon": "🚀"}
 }
+
+# Navigation HTML template
+NAV_TEMPLATE = '''
+    <nav class="sidebar">
+        <div class="nav-header">
+            <a href="/" class="nav-avatar">👤</a>
+            <a href="/" class="nav-name">Shawn</a>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/" class="{home}">首页</a></li>
+            <li><a href="/技术/" class="{技术}">技术</a></li>
+            <li><a href="/生活/" class="{生活}">生活</a></li>
+            <li><a href="/项目/" class="{项目}">项目</a></li>
+        </ul>
+    </nav>
+'''
+
+FOOTER = '''
+    <script src="/js/main.js"></script>
+</body>
+</html>
+'''
 
 
 def parse_frontmatter(content):
@@ -76,15 +97,27 @@ def markdown_to_html(markdown):
         # Skip external links
         if url.startswith('http'):
             return f'<a href="{url}">{text}</a>'
-        # Convert absolute paths to relative
-        url = re.sub(r'^/', '', url)
+        
+        # Map English to Chinese categories
+        url = url.replace('tech/', '技术/')
+        url = url.replace('life/', '生活/')
+        url = url.replace('projects/', '项目/')
+        url = url.replace('/tech/', '/技术/')
+        url = url.replace('/life/', '/生活/')
+        url = url.replace('/projects/', '/项目/')
+        
+        # Ensure absolute paths
+        if not url.startswith('/') and not url.startswith('./') and not url.startswith('../'):
+            url = '/' + url
+        
         # Remove .md extension
         url = re.sub(r'\.md$', '', url)
-        # Add index.html for category roots
-        url = re.sub(r'^(tech|life|projects)$', r'\1/index.html', url)
-        # Add index.html for article links
-        if not url.endswith('.html') and not url.endswith('/'):
+        # Add index.html for category/article roots
+        if url.endswith('/') and not url.endswith('index.html'):
+            url = url + 'index.html'
+        elif not url.endswith('.html') and not url.endswith('/'):
             url = url + '/index.html'
+        
         return f'<a href="{url}">{text}</a>'
 
     html = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', fix_link, html)
@@ -107,18 +140,37 @@ def markdown_to_html(markdown):
     return html
 
 
-def load_template(name):
-    """Load template file"""
-    with open(TEMPLATES_DIR / name) as f:
-        return f.read()
+def generate_nav(current_page):
+    """Generate navigation with active state"""
+    pages = {
+        "home": "",
+        "技术": "",
+        "生活": "",
+        "项目": ""
+    }
+    if current_page in pages:
+        pages[current_page] = "active"
+    
+    return NAV_TEMPLATE.format(**pages)
 
 
-def render_template(template, **kwargs):
-    """Simple template renderer"""
-    result = template
-    for key, value in kwargs.items():
-        result = result.replace(f'{{{{{key}}}}}', str(value))
-    return result
+def wrap_page(title, content, current_page="home"):
+    """Wrap content in full HTML page"""
+    nav = generate_nav(current_page)
+    return f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | Shawn</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+{nav}
+    <main class="main-content">
+        {content}
+    </main>
+{FOOTER}'''
 
 
 def get_all_posts():
@@ -155,14 +207,12 @@ def get_all_posts():
 
 def generate_index(posts):
     """Generate index.html"""
-    template = load_template("page.html")
-
     # Get latest posts per category
-    tech_posts = [p for p in posts if p["category"] == "tech"][:3]
-    life_posts = [p for p in posts if p["category"] == "life"][:3]
-    projects_posts = [p for p in posts if p["category"] == "projects"][:3]
+    技术_posts = [p for p in posts if p["category"] == "技术"][:3]
+    生活_posts = [p for p in posts if p["category"] == "生活"][:3]
+    项目_posts = [p for p in posts if p["category"] == "项目"][:3]
 
-    html = f"""
+    html = f'''
     <div class="hero">
         <h1>你好，我是 Shawn</h1>
         <p>探索技术 · 创造价值 · 持续学习<br>在这里记录我的学习笔记、技术分享和生活思考</p>
@@ -171,39 +221,35 @@ def generate_index(posts):
     <section class="section">
         <div class="section-header">
             <h2 class="section-title">💻 技术文章</h2>
-            <a href="/tech/" class="section-more">查看更多 →</a>
+            <a href="/技术/" class="section-more">查看更多 →</a>
         </div>
         <div class="post-list">
-            {generate_post_cards(tech_posts)}
+            {generate_post_cards(技术_posts)}
         </div>
     </section>
 
     <section class="section">
         <div class="section-header">
             <h2 class="section-title">🌱 生活随笔</h2>
-            <a href="/life/" class="section-more">查看更多 →</a>
+            <a href="/生活/" class="section-more">查看更多 →</a>
         </div>
         <div class="post-list">
-            {generate_post_cards(life_posts)}
+            {generate_post_cards(生活_posts)}
         </div>
     </section>
 
     <section class="section">
         <div class="section-header">
             <h2 class="section-title">🚀 项目展示</h2>
-            <a href="/projects/" class="section-more">查看更多 →</a>
+            <a href="/项目/" class="section-more">查看更多 →</a>
         </div>
         <div class="post-list">
-            {generate_post_cards(projects_posts)}
+            {generate_post_cards(项目_posts)}
         </div>
     </section>
-    """
+    '''
 
-    return render_template(template,
-        title="首页",
-        content=html,
-        is_home=True
-    )
+    return wrap_page("首页", html, "home")
 
 
 def generate_post_cards(posts):
@@ -228,12 +274,11 @@ def generate_post_cards(posts):
 
 def generate_category_page(posts, category):
     """Generate category listing page"""
-    template = load_template("page.html")
     cat_info = CATEGORIES[category]
 
     cat_posts = [p for p in posts if p["category"] == category]
 
-    html = f"""
+    html = f'''
     <div class="section">
         <h2 class="section-title" style="font-size: 28px; margin-bottom: 30px;">
             {cat_info['icon']} {cat_info['name']}
@@ -242,41 +287,33 @@ def generate_category_page(posts, category):
             {generate_post_cards(cat_posts)}
         </div>
     </div>
-    """
+    '''
 
-    is_tech = category == "tech"
-    is_life = category == "life"
-    is_projects = category == "projects"
-
-    return render_template(template,
-        title=cat_info["name"],
-        content=html,
-        **{"is_tech": is_tech, "is_life": is_life, "is_projects": is_projects}
-    )
+    return wrap_page(cat_info["name"], html, category)
 
 
 def generate_post_page(post):
     """Generate single post page"""
-    template = load_template("page.html")
-    post_template = load_template("post.html")
+    html = f'''
+    <article class="post">
+        <header class="post-header">
+            <span class="post-category">{post['category_name']}</span>
+            <h1 class="post-title">{post['title']}</h1>
+            <div class="post-meta">
+                <span>📅 {post['date']}</span>
+                <span>🏷️ {post['tags']}</span>
+            </div>
+        </header>
+        <div class="post-content">
+            {post['content']}
+        </div>
+        <footer class="post-footer">
+            <a href="/{post['category']}/">← 返回{post['category_name']}</a>
+        </footer>
+    </article>
+    '''
 
-    html = render_template(post_template,
-        category=post["category_name"],
-        title=post["title"],
-        date=post["date"],
-        tags=post["tags"],
-        content=post["content"]
-    )
-
-    is_tech = post["category"] == "tech"
-    is_life = post["category"] == "life"
-    is_projects = post["category"] == "projects"
-
-    return render_template(template,
-        title=post["title"],
-        content=html,
-        **{"is_tech": is_tech, "is_life": is_life, "is_projects": is_projects}
-    )
+    return wrap_page(post["title"], html, post["category"])
 
 
 def build():

@@ -40,6 +40,6 @@ content/
 
 ## 继续阅读
 
-- [我的开发工具配置](/tech/tools-setup)
-- [2026 年学习计划](/life/learning-plan-2026)
-- [个人项目展示](/projects/)
+- [我的开发工具配置](/技术/tools-setup)
+- [2026 年学习计划](/生活/learning-plan-2026)
+- [个人项目展示](/项目/)
