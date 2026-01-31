@@ -1,0 +1,2 @@
+# Requirements for personal-website
+# No external dependencies needed for basic version

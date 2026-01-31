@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的开发工具配置 | Shawn</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="nav-header">
+            <a href="/" class="nav-avatar">👤</a>
+            <a href="/" class="nav-name">Shawn</a>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/" class="{{#if is_home}}active{{/if}}">首页</a></li>
+            <li><a href="/tech/" class="{{#if is_tech}}active{{/if}}">技术</a></li>
+            <li><a href="/life/" class="{{#if is_life}}active{{/if}}">生活</a></li>
+            <li><a href="/projects/" class="{{#if is_projects}}active{{/if}}">项目</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <article class="post">
+    <header class="post-header">
+        <span class="post-category">技术</span>
+        <h1 class="post-title">我的开发工具配置</h1>
+        <div class="post-meta">
+            <span>📅 2026-01-15</span>
+            <span>🏷️ 工具,效率</span>
+        </div>
+    </header>
+    <div class="post-content">
+        <p>
+<h1>开发工具配置 🛠️</h1></p><p><h2>编辑器</h2></p><p><strong>VS Code</strong> 是我的主要编辑器，配合以下插件：</p><p><ul><li>GitLens - 代码历史追溯</li>
+<li>Error Lens - 错误提示增强</li>
+<li>Prettier - 代码格式化</li>
+<li>Markdown All in One - Markdown 编辑</li>
+</ul>
+<h2>终端</h2></p><p>使用 <strong>iTerm2</strong> + <strong>Oh My Zsh</strong>：</p><p><pre><code># 安装 Oh My Zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"</p><p><h1>安装插件</h1>
+source $ZSH/custom/plugins/zsh-autosuggestions
+source $ZSH/custom/plugins/zsh-syntax-highlighting
+</code></pre></p><p><h2>包管理</h2></p><p><ul><li><strong>Homebrew</strong> - macOS 包管理</li>
+<li><strong>nvm</strong> - Node.js 版本管理</li>
+<li><strong>pyenv</strong> - Python 版本管理</li>
+</ul>
+<h2>AI 助手</h2></p><p><ul><li><strong>OpenClaw</strong> - 本地 AI 助手框架</li>
+<li><strong>Claude</strong> - 主力对话 AI</li>
+</ul>
+<h2>其他工具</h2></p><p><ul><li><strong>Raycast</strong> - 快速启动器</li>
+<li><strong>Notion</strong> - 笔记管理</li>
+<li><strong>Obsidian</strong> - 知识库</li>
+</ul></p>
+    </div>
+    <footer class="post-footer">
+        <a href="/技术/">← 返回 {{category_name}}</a>
+    </footer>
+</article>
+
+    </main>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
